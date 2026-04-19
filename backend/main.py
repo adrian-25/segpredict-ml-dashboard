@@ -2,10 +2,13 @@ import os
 import json
 import pickle
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from recommendation import generate_recommendations
 from pydantic import BaseModel
+from auth import get_current_user
+
+from routes import auth_routes, models_routes, customers_routes, email_routes
 
 class MLFeatures(BaseModel):
     Recency: float
@@ -23,6 +26,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_routes.router)
+app.include_router(models_routes.router)
+app.include_router(customers_routes.router)
+app.include_router(email_routes.router)
 
 # Load artifacts sequentially at startup
 features_df = None
@@ -182,9 +190,33 @@ def recommend_for_customer(customer_id: float):
 
 
 @app.post("/predict/manual")
-def predict_manual(features: MLFeatures):
-    if scaler is None or kmeans is None or best_model is None:
-        raise HTTPException(status_code=500, detail="Models not loaded properly.")
+def predict_manual(features: MLFeatures, user_id: str = Depends(get_current_user)):
+    # Read artifacts directly to avoid global state staleness
+    try:
+        with open('artifacts/scaler.pkl', 'rb') as f:
+            local_scaler = pickle.load(f)
+        with open('artifacts/kmeans.pkl', 'rb') as f:
+            local_kmeans = pickle.load(f)
+        with open('artifacts/best_model.pkl', 'rb') as f:
+            model_data = pickle.load(f)
+            local_model = model_data.get('model', model_data)
+        with open('artifacts/ml_scaler.pkl', 'rb') as f:
+            local_ml_scaler = pickle.load(f)
+        try:
+             with open("artifacts/ml_features.json", 'r') as f:
+                 import json
+                 local_ml_features = json.load(f)
+        except:
+             local_ml_features = None
+             
+        # Also try to load features_df to figure out segment mapping
+        try:
+            local_features_df = pd.read_csv('artifacts/features.csv')
+        except:
+            local_features_df = None
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Models not loaded properly: {str(e)}")
 
     # 1. Cluster mapping
     try:
@@ -197,16 +229,16 @@ def predict_manual(features: MLFeatures):
         
         # Apply the log transformation matching training data exactly
         import numpy as np
-        scaled_rfm = scaler.transform(np.log1p(rfm_df))
-        cluster_id = int(kmeans.predict(scaled_rfm)[0])
+        scaled_rfm = local_scaler.transform(np.log1p(rfm_df))
+        cluster_id = int(local_kmeans.predict(scaled_rfm)[0])
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Clustering error: {str(e)}")
         
     # We must deduce Segment from Cluster using existing logic.
     segment = "Unknown"
-    if features_df is not None:
+    if local_features_df is not None and 'Cluster' in local_features_df.columns and 'Segment' in local_features_df.columns:
         try:
-            sample_segment = features_df[features_df['Cluster'] == cluster_id]['Segment'].iloc[0]
+            sample_segment = local_features_df[local_features_df['Cluster'] == cluster_id]['Segment'].iloc[0]
             segment = sample_segment
         except:
             pass
@@ -219,7 +251,10 @@ def predict_manual(features: MLFeatures):
         # Synthesize the advanced ML features utilizing the 5 base inputs from the UI
         total_items = features.Frequency * (features.Monetary / features.AvgOrderValue if features.AvgOrderValue > 0 else 1)
         avg_items = total_items / features.Frequency if features.Frequency > 0 else 1
-        tenure = features.Recency + (features.Frequency / purchase_freq_per_day if purchase_freq_per_day > 0 else 1)
+        
+        # ML safeguard: Boundary cap to prevent Out-Of-Distribution prediction explosions
+        raw_tenure = features.Recency + (features.Frequency / purchase_freq_per_day if purchase_freq_per_day > 1e-4 else 365)
+        tenure = min(max(raw_tenure, features.Recency), 7300) # strict cap at 20 years
 
         X_input = pd.DataFrame([{
             "Recency": features.Recency,
@@ -235,20 +270,20 @@ def predict_manual(features: MLFeatures):
             "PurchaseFreqPerDay": purchase_freq_per_day
         }])
         
-        if ml_features is not None:
+        if local_ml_features is not None:
             # Handle potentially missing columns just in case
-            for col in ml_features:
+            for col in local_ml_features:
                 if col not in X_input.columns:
                     X_input[col] = 0.0
-            X_input = X_input[ml_features]
+            X_input = X_input[local_ml_features]
             
-        if ml_scaler is not None:
-            X_input_scaled = ml_scaler.transform(X_input)
+        if local_ml_scaler is not None:
+            X_input_scaled = local_ml_scaler.transform(X_input)
         else:
             X_input_scaled = X_input
             
-        prob = best_model.predict_proba(X_input_scaled)[0][1]
-        pred_class = int(best_model.predict(X_input_scaled)[0])
+        prob = local_model.predict_proba(X_input_scaled)[0][1]
+        pred_class = int(local_model.predict(X_input_scaled)[0])
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
         

@@ -1,15 +1,21 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Users, DollarSign, Activity, Calendar } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Overview() {
   const [data, setData] = useState(null);
+  const { token } = useAuth();
 
   useEffect(() => {
-    axios.get('http://localhost:8001/data/summary')
-      .then((res) => setData(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+    if (token) {
+        axios.get('http://localhost:8001/user-metrics', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+          .then((res) => setData(res.data))
+          .catch((err) => console.error(err));
+    }
+  }, [token]);
 
   if (!data) return (
     <div className="flex items-center justify-center p-10">
@@ -20,10 +26,10 @@ export default function Overview() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard title="Total Customers" value={data.total_customers.toLocaleString()} icon={<Users className="w-5 h-5"/>} color="text-blue-400" />
-        <StatsCard title="Total Revenue" value={`$${data.total_revenue.toLocaleString(undefined, {maximumFractionDigits:0})}`} icon={<DollarSign className="w-5 h-5"/>} color="text-green-400" />
-        <StatsCard title="Transactions" value={data.total_transactions.toLocaleString()} icon={<Activity className="w-5 h-5"/>} color="text-purple-400" />
-        <StatsCard title="Date Range" value={data.date_range} icon={<Calendar className="w-5 h-5"/>} color="text-orange-400" />
+        <StatsCard title="Total Customers" value={data.total_customers?.toLocaleString() || '0'} icon={<Users className="w-5 h-5"/>} color="text-blue-400" />
+        <StatsCard title="Total Revenue" value={`$${(data.total_revenue || 0).toLocaleString(undefined, {maximumFractionDigits:0})}`} icon={<DollarSign className="w-5 h-5"/>} color="text-green-400" />
+        <StatsCard title="Transactions" value={(data.total_transactions || 0).toLocaleString()} icon={<Activity className="w-5 h-5"/>} color="text-purple-400" />
+        <StatsCard title="Date Range" value={data.date_range || 'N/A'} icon={<Calendar className="w-5 h-5"/>} color="text-orange-400" />
       </div>
     </div>
   );

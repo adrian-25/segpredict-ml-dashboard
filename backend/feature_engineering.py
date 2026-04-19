@@ -39,8 +39,9 @@ def create_training_dataset(df: pd.DataFrame) -> pd.DataFrame:
     features['MaxOrderValue'] = order_values.max()
     features['MinOrderValue'] = order_values.min()
     
-    # Lifecycle / Engagement Features
-    life_span = customer_group['InvoiceDate'].agg(lambda x: (x.max() - x.min()).days).replace(0, 1)
+    # Lifecycle / Engagement Features — convert timedelta to integer days explicitly
+    life_span_td = customer_group['InvoiceDate'].agg(lambda x: x.max() - x.min())
+    life_span = life_span_td.dt.days.replace(0, 1)  # numeric days, avoid divide-by-zero
     features['Tenure'] = customer_group['InvoiceDate'].min().apply(lambda x: (cutoff_date - x).days)
     features['PurchaseFreqPerDay'] = features['Frequency'] / life_span
     

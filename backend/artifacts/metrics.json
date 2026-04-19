@@ -15,16 +15,16 @@
             ]
         ],
         "feature_importance": {
-            "Frequency": 0.4063805092565173,
-            "Recency": 0.13210881521259782,
-            "Monetary": 0.11184462011568927,
-            "MaxOrderValue": 0.10109996102793474,
-            "MinOrderValue": 0.06280566343897373,
-            "OrderValueStd": 0.05855572765028268,
-            "AvgOrderValue": 0.04049759748391207,
-            "PurchaseFreqPerDay": 0.032526410923026924,
-            "AvgItemsPerOrder": 0.029509450736934444,
-            "Tenure": 0.02467124415413107
+            "Frequency": 0.4063805092566692,
+            "Recency": 0.13210881521261264,
+            "Monetary": 0.11184462011576332,
+            "MaxOrderValue": 0.10109996102793756,
+            "MinOrderValue": 0.06280566343892079,
+            "OrderValueStd": 0.05855572765024605,
+            "AvgOrderValue": 0.04049759748382795,
+            "PurchaseFreqPerDay": 0.032526410922970955,
+            "AvgItemsPerOrder": 0.029509450736891464,
+            "Tenure": 0.02467124415415995
         }
     },
     "Random Forest": {

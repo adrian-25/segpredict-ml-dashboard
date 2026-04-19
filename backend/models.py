@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -8,7 +9,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 import pickle
 import json
 
-def train_and_evaluate_models(features: pd.DataFrame):
+def train_and_evaluate_models(features: pd.DataFrame, user_id: str = None):
     print("Training Predictive Models with automated checks...")
     
     # Models will learn to classify future purchase viability dropping explicit identifiers.
@@ -59,7 +60,7 @@ def train_and_evaluate_models(features: pd.DataFrame):
     }
     
     results = {}
-    best_f1 = -1
+    best_score = -1
     best_model_name = ""
     best_model = None
     
@@ -99,19 +100,32 @@ def train_and_evaluate_models(features: pd.DataFrame):
             'feature_importance': feat_importance
         }
         
-        if f1 > best_f1:
-            best_f1 = f1
+        # Custom score prioritizing both Recall and F1 as per business requirement
+        custom_score = f1 + rec
+        
+        if custom_score > best_score:
+            best_score = custom_score
             best_model_name = name
             best_model = model
             
-    print(f"Best Model Selected: {best_model_name} with F1-Score: {best_f1:.4f}")
+    print(f"Best Model Selected: {best_model_name}")
     
-    # Save the StandardScaler trained squarely on the prediction features!
-    with open('artifacts/ml_scaler.pkl', 'wb') as f:
-        pickle.dump(scaler, f)
-        
-    # Save the surviving columns order to dynamically apply scaling in the endpoint
-    with open('artifacts/ml_features.json', 'w') as f:
-        json.dump(list(X.columns), f)
+    if user_id:
+        os.makedirs('models', exist_ok=True)
+        # We save models in models/user_{user_id}...
+        with open(f'models/user_{user_id}_model.pkl', 'wb') as f:
+            pickle.dump(best_model, f)
+        with open(f'models/user_{user_id}_scaler.pkl', 'wb') as f:
+            pickle.dump(scaler, f)
+        with open(f'models/user_{user_id}_features.json', 'w') as f:
+            json.dump(list(X.columns), f)
+    else:
+        # Save the StandardScaler trained squarely on the prediction features!
+        with open('artifacts/ml_scaler.pkl', 'wb') as f:
+            pickle.dump(scaler, f)
+            
+        # Save the surviving columns order to dynamically apply scaling in the endpoint
+        with open('artifacts/ml_features.json', 'w') as f:
+            json.dump(list(X.columns), f)
     
     return best_model, best_model_name, results

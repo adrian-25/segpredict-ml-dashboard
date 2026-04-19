@@ -20,7 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def run_training_pipeline(
-    data_path: str = 'data/online_retail_II.csv', 
+    data_path: str = 'data/online_retail_II_June-2025_Dec-2025.csv', 
     artifacts_dir: str = 'artifacts'
 ) -> Optional[Dict[str, Any]]:
     """

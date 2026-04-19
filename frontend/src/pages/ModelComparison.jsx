@@ -5,17 +5,17 @@ import { ShieldCheck, Sparkles, Target, BarChart2, Repeat, Activity } from 'luci
 
 // ── Static validation data (Jan–Mar 2026) ────────────────────────────────────
 const VALIDATION_METRICS = {
-  accuracy:  { value: 74.3, training: 81.2 },
+  accuracy: { value: 74.3, training: 81.2 },
   precision: { value: 63.8, training: 76.5 },
-  recall:    { value: 54.1, training: 68.4 },
-  f1:        { value: 58.6, training: 72.3 },
+  recall: { value: 54.1, training: 68.4 },
+  f1: { value: 58.6, training: 72.3 },
 };
 
 const COMPARISON_CHART_DATA = [
   { metric: 'Accuracy', Training: 81.2, Validation: 74.3 },
   { metric: 'F1 Score', Training: 72.3, Validation: 58.6 },
   { metric: 'Precision', Training: 76.5, Validation: 63.8 },
-  { metric: 'Recall',   Training: 68.4, Validation: 54.1 },
+  { metric: 'Recall', Training: 68.4, Validation: 54.1 },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ function ValidationSection() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 flex flex-col gap-5 w-full">
 
       {/* ── Section Header ── */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3
+      {/* <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3
                       bg-white/5 p-4 rounded-2xl border border-white/5 shadow-lg backdrop-blur-sm">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -45,10 +45,10 @@ function ValidationSection() {
         <p className="text-[11px] text-slate-500 italic sm:text-right max-w-xs">
           Validation performed using unseen future transaction data (Jan–Mar 2026)
         </p>
-      </div>
+      </div> */}
 
       {/* ── Metric Cards (StatsCard pattern) ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Accuracy"
           value={`${VALIDATION_METRICS.accuracy.value}%`}
@@ -73,10 +73,10 @@ function ValidationSection() {
           icon={<Activity className="w-5 h-5" />}
           color="text-emerald-400"
         />
-      </div>
+      </div> */}
 
       {/* ── Comparison Bar Chart ── */}
-      <div className="glass-card flex flex-col p-5">
+      {/* <div className="glass-card flex flex-col p-5">
         <h3 className="text-base font-bold text-white mb-1">Training vs Validation Comparison</h3>
         <p className="text-xs text-textMuted mb-4">June–Dec 2025 (Training) vs Jan–Mar 2026 (Validation)</p>
         <div style={{ width: '100%', height: 260 }}>
@@ -100,7 +100,7 @@ function ValidationSection() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </div> */}
 
       {/* ── Insight Box ── */}
       {/* <div className="flex items-start gap-3 p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 backdrop-blur-sm">
@@ -148,76 +148,76 @@ export default function ModelComparison() {
     rawImportance: metrics.feature_importance || {}
   })) : [];
 
-  const bestModelIndex = modelsArray.length > 0 ? modelsArray.reduce((bestIdx, current, idx) => 
+  const bestModelIndex = modelsArray.length > 0 ? modelsArray.reduce((bestIdx, current, idx) =>
     parseFloat(current.f1) > parseFloat(modelsArray[bestIdx].f1) ? idx : bestIdx, 0) : 0;
 
   const bestModel = modelsArray[bestModelIndex] || null;
-  
+
   const featureImp = bestModel ? Object.entries(bestModel.rawImportance)
     .map(([feat, val]) => ({ name: feat, value: parseFloat((val * 100).toFixed(2)) }))
-    .sort((a,b) => b.value - a.value) : [];
+    .sort((a, b) => b.value - a.value) : [];
 
 
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-6 w-full">
-      
+
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5 shadow-lg backdrop-blur-sm">
-         <div>
-            <h2 className="text-xl font-bold text-white">Model Metrics & Evaluation</h2>
-            <p className="text-sm text-textMuted">Compare algorithm efficiency across standard classification metrics.</p>
-         </div>
+        <div>
+          <h2 className="text-xl font-bold text-white">Model Metrics & Evaluation</h2>
+          <p className="text-sm text-textMuted">Compare algorithm efficiency across standard classification metrics.</p>
+        </div>
       </div>
 
       {/* METRICS & CHARTS SPLIT */}
       {modelsArray.length > 0 && (
-         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
-            <div className="overflow-x-auto w-full glass-card h-full">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-white/10 text-textMuted uppercase text-xs tracking-wider">
-                    <th className="p-3">Model</th>
-                    <th className="p-3">Acc (%)</th>
-                    <th className="p-3">Prec (%)</th>
-                    <th className="p-3">Rec (%)</th>
-                    <th className="p-3 text-primary-400 font-bold">F1 (%)</th>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
+          <div className="overflow-x-auto w-full glass-card h-full">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/10 text-textMuted uppercase text-xs tracking-wider">
+                  <th className="p-3">Model</th>
+                  <th className="p-3">Acc (%)</th>
+                  <th className="p-3">Prec (%)</th>
+                  <th className="p-3">Rec (%)</th>
+                  <th className="p-3 text-primary-400 font-bold">F1 (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {modelsArray.map((model, idx) => (
+                  <tr key={model.name} className={`border-b border-white/5 transition-colors hover:bg-white/5 ${idx === bestModelIndex ? 'bg-primary-900/10' : ''}`}>
+                    <td className="p-3 font-medium flex items-center space-x-2">
+                      {idx === bestModelIndex && <span className="w-2 h-2 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]"></span>}
+                      <span className="text-white text-sm">{model.name}</span>
+                    </td>
+                    <td className="p-3 text-sm">{model.accuracy}</td>
+                    <td className="p-3 text-sm">{model.precision}</td>
+                    <td className="p-3 text-sm">{model.recall}</td>
+                    <td className="p-3 text-sm font-bold text-primary-400">{model.f1}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {modelsArray.map((model, idx) => (
-                    <tr key={model.name} className={`border-b border-white/5 transition-colors hover:bg-white/5 ${idx === bestModelIndex ? 'bg-primary-900/10' : ''}`}>
-                      <td className="p-3 font-medium flex items-center space-x-2">
-                        {idx === bestModelIndex && <span className="w-2 h-2 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]"></span>}
-                        <span className="text-white text-sm">{model.name}</span>
-                      </td>
-                      <td className="p-3 text-sm">{model.accuracy}</td>
-                      <td className="p-3 text-sm">{model.precision}</td>
-                      <td className="p-3 text-sm">{model.recall}</td>
-                      <td className="p-3 text-sm font-bold text-primary-400">{model.f1}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-            {featureImp.length > 0 && (
-              <div className="glass-card w-full min-h-[350px] flex flex-col">
-                <h3 className="text-lg font-bold text-white mb-6">Feature Importance ({bestModel.name})</h3>
-                <div className="flex-grow min-h-[300px]">
+          {featureImp.length > 0 && (
+            <div className="glass-card w-full min-h-[350px] flex flex-col">
+              <h3 className="text-lg font-bold text-white mb-6">Feature Importance ({bestModel.name})</h3>
+              <div className="flex-grow min-h-[300px]">
                 <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                   <BarChart data={featureImp} layout="vertical" margin={{ left: -20, right: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
                     <XAxis type="number" stroke="#94a3b8" fontSize={12} />
-                    <YAxis dataKey="name" type="category" stroke="#94a3b8" width={100} tick={{fill: '#e2e8f0', fontSize: 11}} />
-                    <Tooltip cursor={{fill: '#334155', opacity: 0.4}} contentStyle={{backgroundColor: 'rgba(30, 41, 59, 0.9)', backdropFilter: 'blur(8px)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff'}} />
+                    <YAxis dataKey="name" type="category" stroke="#94a3b8" width={100} tick={{ fill: '#e2e8f0', fontSize: 11 }} />
+                    <Tooltip cursor={{ fill: '#334155', opacity: 0.4 }} contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.9)', backdropFilter: 'blur(8px)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }} />
                     <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={16} isAnimationActive={true} animationDuration={1000} animationEasing="ease-out" />
                   </BarChart>
                 </ResponsiveContainer>
-                </div>
               </div>
-            )}
-         </div>
+            </div>
+          )}
+        </div>
       )}
 
       {/* ══ MODEL VALIDATION SECTION (static, Jan–Mar 2026) ══ */}
