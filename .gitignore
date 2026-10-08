@@ -1,2 +1,11 @@
 # Added by code-review-graph
 .code-review-graph/
+
+# Local credentials and generated dependencies
+.env
+.env.*
+!.env.example
+frontend/node_modules/
+frontend/dist/
+backend/__pycache__/
+**/*.py[cod]

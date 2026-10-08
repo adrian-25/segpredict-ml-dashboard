@@ -9,7 +9,7 @@ export default function Overview() {
 
   useEffect(() => {
     if (token) {
-        axios.get('http://localhost:8001/user-metrics', {
+        axios.get('/user-metrics', {
             headers: { Authorization: `Bearer ${token}` }
         })
           .then((res) => setData(res.data))

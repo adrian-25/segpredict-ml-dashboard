@@ -6,7 +6,7 @@ export default function RFMDashboard() {
     const [data, setData] = useState(null);
 
     useEffect(() => {
-        axios.get('http://localhost:8001/clusters')
+        axios.get('/clusters')
             .then((res) => {
                 // Prepare data for bar chart
                 const formatted = res.data.rfm_averages.map(d => ({

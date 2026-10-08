@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Play, TrendingUp, AlertTriangle, Target, Lightbulb, Loader2, CheckCircle, Send, Users, RefreshCw, Mail } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-const API = 'http://localhost:8001';
+const API = '';
 
 const emailStatusBadge = (status) => {
   const map = {

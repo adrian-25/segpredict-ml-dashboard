@@ -1,9 +1,11 @@
 import os
 import json
 import pickle
+from pathlib import Path
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, Response
 from recommendation import generate_recommendations
 from pydantic import BaseModel
 from auth import get_current_user
@@ -31,6 +33,8 @@ app.include_router(auth_routes.router)
 app.include_router(models_routes.router)
 app.include_router(customers_routes.router)
 app.include_router(email_routes.router)
+
+FRONTEND_DIST = Path("/app/frontend-dist")
 
 # Load artifacts sequentially at startup
 features_df = None
@@ -296,3 +300,26 @@ def predict_manual(features: MLFeatures, user_id: str = Depends(get_current_user
         "predicted_purchase": bool(pred_class),
         "recommendations": recs
     }
+
+
+@app.get("/runtime-config.js", include_in_schema=False)
+def runtime_config():
+    """Expose only browser-safe runtime settings to the bundled frontend."""
+    config = {"GOOGLE_CLIENT_ID": os.getenv("GOOGLE_CLIENT_ID", "")}
+    return Response(
+        content=f"window.__APP_CONFIG__ = {json.dumps(config)};\n",
+        media_type="application/javascript",
+    )
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+def serve_frontend(full_path: str):
+    """Serve Vite assets and fall back to the SPA entry point for client routes."""
+    requested_path = (FRONTEND_DIST / full_path).resolve()
+    if FRONTEND_DIST.exists() and requested_path.is_relative_to(FRONTEND_DIST.resolve()) and requested_path.is_file():
+        return FileResponse(requested_path)
+
+    index_path = FRONTEND_DIST / "index.html"
+    if index_path.is_file():
+        return FileResponse(index_path)
+    raise HTTPException(status_code=404, detail="Frontend build is not available")

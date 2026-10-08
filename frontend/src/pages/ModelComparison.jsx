@@ -124,7 +124,7 @@ export default function ModelComparison() {
   const [data, setData] = useState(null);
 
   const fetchMetrics = () => {
-    axios.get('http://localhost:8001/model-metrics')
+    axios.get('/model-metrics')
       .then((res) => setData(res.data))
       .catch((err) => console.error(err));
   };

@@ -16,7 +16,7 @@ export default function CustomerDetail() {
         setError('');
 
         try {
-            const res = await axios.get(`http://localhost:8001/recommend/${customerId}`);
+            const res = await axios.get(`/recommend/${customerId}`);
             setResult(res.data);
         } catch (err) {
             setError(err.response?.data?.detail || "Customer not found or error occurred.");

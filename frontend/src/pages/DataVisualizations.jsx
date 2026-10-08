@@ -11,8 +11,8 @@ export default function DataVisualizations() {
         const fetchData = async () => {
             try {
                 const [scatterRes, metricsRes] = await Promise.all([
-                    axios.get('http://localhost:8001/scatter-data'),
-                    axios.get('http://localhost:8001/model-metrics')
+                    axios.get('/scatter-data'),
+                    axios.get('/model-metrics')
                 ]);
                 setScatterData(scatterRes.data);
                 setModelMetrics(metricsRes.data);

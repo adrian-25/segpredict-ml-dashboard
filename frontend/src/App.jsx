@@ -24,7 +24,7 @@ export default function App() {
   // Check if user has trained a model by fetching their metrics
   useEffect(() => {
     if (!token) { setHasTrainedModel(false); return; }
-    axios.get('http://localhost:8001/user-metrics', {
+    axios.get('/user-metrics', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {

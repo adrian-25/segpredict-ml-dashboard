@@ -14,7 +14,7 @@ export default function CustomerManagement() {
 
     const fetchCustomers = async () => {
         try {
-            const res = await axios.get('http://localhost:8001/customers', {
+            const res = await axios.get('/customers', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setCustomers(res.data);
@@ -41,7 +41,7 @@ export default function CustomerManagement() {
                 avg_order_value: Number(formData.avg_order_value),
                 purchases_per_month: Number(formData.purchases_per_month),
             };
-            await axios.post('http://localhost:8001/customers', parsed, {
+            await axios.post('/customers', parsed, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setFormData({ name: '', email: '', recency: '', frequency: '', monetary: '', avg_order_value: '', purchases_per_month: '' });
@@ -54,7 +54,7 @@ export default function CustomerManagement() {
 
     const runPrediction = async (id) => {
         try {
-            await axios.post(`http://localhost:8001/customers/${id}/predict`, {}, {
+            await axios.post(`/customers/${id}/predict`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchCustomers();
@@ -65,7 +65,7 @@ export default function CustomerManagement() {
 
     const sendEmail = async (id) => {
         try {
-             await axios.post(`http://localhost:8001/send-email`, { customer_id: id }, {
+             await axios.post(`/send-email`, { customer_id: id }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchCustomers();

@@ -27,7 +27,7 @@ export default function UploadAndTrain() {
         
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:8001/upload-csv', formData, {
+            const res = await axios.post('/upload-csv', formData, {
                 headers: { 
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}` 
