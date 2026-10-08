@@ -2,7 +2,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { LogOut } from 'lucide-react';
 
 export default function Navbar() {
-  const { logout } = useAuth();
+  const { logout, isDemo } = useAuth();
   return (
     <nav className="bg-surface/90 backdrop-blur-md border-b border-white/10 px-8 py-4 flex items-center justify-between sticky top-0 z-50">
       <div className="flex items-center gap-4 cursor-pointer group">
@@ -22,12 +22,16 @@ export default function Navbar() {
            <span className="text-xs font-semibold text-green-500 tracking-wider">SYSTEM ONLINE</span>
         </div>
         
-        <button 
-          onClick={logout} 
-          className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 text-rose-500 rounded-lg font-bold hover:bg-rose-500/20 transition-colors border border-rose-500/20"
-        >
-          <LogOut size={16} /> Logout
-        </button>
+        {isDemo ? (
+          <span className="px-4 py-2 rounded-lg font-bold text-amber-300 bg-amber-500/10 border border-amber-500/20">Demo mode</span>
+        ) : (
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 text-rose-500 rounded-lg font-bold hover:bg-rose-500/20 transition-colors border border-rose-500/20"
+          >
+            <LogOut size={16} /> Logout
+          </button>
+        )}
       </div>
     </nav>
   );

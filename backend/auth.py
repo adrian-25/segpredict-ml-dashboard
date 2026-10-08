@@ -12,7 +12,8 @@ SECRET_KEY = os.getenv("JWT_SECRET_KEY", "b3a8e9d1c2f4r5t8y9u0i1o2p3a4s5d6f7g8h9
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/google")
+DEMO_MODE = os.getenv("DEMO_MODE", "").lower() == "true"
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/google", auto_error=False)
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -24,12 +25,18 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str | None = Depends(oauth2_scheme)):
+    # The hosted portfolio demo intentionally runs without third-party credentials.
+    if DEMO_MODE:
+        return "demo-user"
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    if not token:
+        raise credentials_exception
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")

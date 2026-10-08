@@ -5,6 +5,7 @@ from database import customers_collection
 from email_service import send_approval_email
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
+import os
 
 router = APIRouter(tags=["email"])
 
@@ -13,6 +14,9 @@ class EmailRequest(BaseModel):
 
 @router.post("/send-email")
 async def send_customer_email(req: EmailRequest, request: Request, background_tasks: BackgroundTasks, user_id: str = Depends(get_current_user)):
+    if os.getenv("DEMO_MODE", "").lower() == "true":
+        raise HTTPException(status_code=503, detail="Email sending is disabled in the public demo.")
+
     customer = await customers_collection.find_one({"_id": req.customer_id, "user_id": user_id})
     if not customer:
         raise HTTPException(status_code=404, detail="Customer not found.")

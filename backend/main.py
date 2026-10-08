@@ -305,7 +305,10 @@ def predict_manual(features: MLFeatures, user_id: str = Depends(get_current_user
 @app.get("/runtime-config.js", include_in_schema=False)
 def runtime_config():
     """Expose only browser-safe runtime settings to the bundled frontend."""
-    config = {"GOOGLE_CLIENT_ID": os.getenv("GOOGLE_CLIENT_ID", "")}
+    config = {
+        "DEMO_MODE": os.getenv("DEMO_MODE", "").lower() == "true",
+        "GOOGLE_CLIENT_ID": os.getenv("GOOGLE_CLIENT_ID", ""),
+    }
     return Response(
         content=f"window.__APP_CONFIG__ = {json.dumps(config)};\n",
         media_type="application/javascript",

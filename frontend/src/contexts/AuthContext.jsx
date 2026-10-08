@@ -2,12 +2,14 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
+const demoMode = window.__APP_CONFIG__?.DEMO_MODE === true;
+const demoUser = { id: 'demo-user', name: 'Demo User', email: 'demo@segpredict.app' };
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token') || null);
+    const [user, setUser] = useState(demoMode ? demoUser : null);
+    const [token, setToken] = useState(localStorage.getItem('token') || (demoMode ? 'demo-session' : null));
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -38,6 +40,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
+        if (demoMode) {
+            setUser(demoUser);
+            setToken('demo-session');
+            return;
+        }
         setToken(null);
         setUser(null);
         localStorage.removeItem('token');
@@ -45,7 +52,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, isAuthenticated: !!token, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, token, isAuthenticated: demoMode || !!token, isDemo: demoMode, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );
