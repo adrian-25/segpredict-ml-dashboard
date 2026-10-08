@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 from dotenv import load_dotenv
 import httpx
+from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorClient
 
 load_dotenv()
@@ -100,7 +101,10 @@ class SupabaseCollection:
                 method,
                 self._table_url,
                 params=params,
-                json=json,
+                # PostgREST receives JSON, while the existing routes use
+                # Python datetime values for fields such as `updated_at`.
+                # Encode them before handing the body to httpx.
+                json=jsonable_encoder(json) if json is not None else None,
                 headers=self._headers(prefer),
             )
         response.raise_for_status()
