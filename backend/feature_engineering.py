@@ -5,6 +5,11 @@ from datetime import timedelta
 def create_training_dataset(df: pd.DataFrame) -> pd.DataFrame:
     """Creates a robust set of features using temporal splitting to prevent data leakage."""
     print("Engineering advanced features and separating target timeframe...")
+
+    # `clean_data` standardizes the incoming CSV field to `CustomerID`.
+    # Accept the raw CSV spelling too so this function remains reusable on
+    # uncleaned data.
+    customer_column = 'CustomerID' if 'CustomerID' in df.columns else 'Customer ID'
     
     # TEMPORAL TIME SPLIT (Data Leakage Fix)
     max_date = df['InvoiceDate'].max()
@@ -15,12 +20,12 @@ def create_training_dataset(df: pd.DataFrame) -> pd.DataFrame:
     future_df = df[df['InvoiceDate'] >= cutoff_date].copy()
     
     # Future target creation
-    future_buyers = future_df['CustomerID'].unique()
+    future_buyers = future_df[customer_column].unique()
     
-    customer_group = history_df.groupby('CustomerID')
+    customer_group = history_df.groupby(customer_column)
     
     # Initialize features DataFrame
-    features = pd.DataFrame(index=history_df['CustomerID'].unique())
+    features = pd.DataFrame(index=history_df[customer_column].unique())
     features.index.name = 'CustomerID'
     
     # Core RFM Features using Cutoff as baseline
