@@ -88,12 +88,17 @@ class SupabaseCollection:
 
     @staticmethod
     def _headers(prefer="return=representation"):
-        return {
+        headers = {
             "apikey": SUPABASE_SERVICE_ROLE_KEY,
-            "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
             "Content-Type": "application/json",
             "Prefer": prefer,
         }
+        # New Supabase server keys (`sb_secret_...`) are API keys, not JWTs.
+        # Supplying one as a Bearer token makes the gateway reject it with 401.
+        # Legacy `service_role` JWT keys still require the Authorization header.
+        if not SUPABASE_SERVICE_ROLE_KEY.startswith("sb_"):
+            headers["Authorization"] = f"Bearer {SUPABASE_SERVICE_ROLE_KEY}"
+        return headers
 
     async def _request(self, method, *, params=None, json=None, prefer="return=representation"):
         async with httpx.AsyncClient(timeout=15) as client:
