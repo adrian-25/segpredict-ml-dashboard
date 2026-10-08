@@ -10,6 +10,7 @@ import axios from "axios";
 
 const appConfig = window.__APP_CONFIG__ || {};
 const demoMode = appConfig.DEMO_MODE === true;
+const supabaseMode = Boolean(appConfig.SUPABASE_URL && appConfig.SUPABASE_ANON_KEY);
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:8001" : "");
 
 const clientId = appConfig.GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -22,5 +23,5 @@ const app = (
 );
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  demoMode ? app : <GoogleOAuthProvider clientId={clientId}>{app}</GoogleOAuthProvider>
+  demoMode || supabaseMode ? app : <GoogleOAuthProvider clientId={clientId}>{app}</GoogleOAuthProvider>
 );

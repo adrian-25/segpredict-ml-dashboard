@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.12.1",
+    "@supabase/supabase-js": "^2.117.3",
     "axios": "^1.14.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^1.7.0",
@@ -17,7 +19,6 @@
     "react-dom": "^19.2.4",
     "react-hot-toast": "^2.4.1",
     "react-router-dom": "^7.14.0",
-    "@react-oauth/google": "^0.12.1",
     "recharts": "^3.8.1"
   },
   "devDependencies": {
